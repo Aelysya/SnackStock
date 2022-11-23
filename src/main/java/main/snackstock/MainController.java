@@ -9,10 +9,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import main.snackstock.gestionStock.CartContent;
 import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
 
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +52,9 @@ public class MainController {
 
         validerButton.setOnAction(event -> launchConfirmation());
         annulerButton.setOnAction(event -> clearCart());
+
+        freeMenuField.textProperty().addListener((observableValue, s, t1) -> computePrice());
+        freeConsoField.textProperty().addListener((observableValue, s, t1) -> computePrice());
     }
 
     public void launchAuthBeforeManagement() {
@@ -119,7 +125,10 @@ public class MainController {
             Button add = new Button("Ajouter");
             add.setPrefWidth(100);
             add.setPrefHeight(30);
-            add.setOnAction(event -> addItemToCart(i));
+            add.setOnAction(event -> {
+                CartContent.addItem(i, type);
+                addItemToCart(i, type);
+            });
 
             itemsGrid.add(name, 0, cpt);
             itemsGrid.add(price, 1, cpt);
@@ -137,7 +146,7 @@ public class MainController {
         });
     }
 
-    public void addItemToCart(Item item){
+    public void addItemToCart(Item item, String type){
         int newRow = cartGrid.getRowCount();
 
         Label name = new Label(item.getNAME());
@@ -147,15 +156,25 @@ public class MainController {
         Button add = new Button("+");
         add.setPrefWidth(40);
         add.setPrefHeight(20);
-        add.setOnAction(event -> qty.setText(Integer.toString(Integer.parseInt(qty.getText())+1)));
+        add.setOnAction(event -> {
+            qty.setText(Integer.toString(Integer.parseInt(qty.getText()) + 1));
+            CartContent.addOneToItem(item, type);
+            computePrice();
+        });
         Button remove = new Button("-");
         remove.setPrefWidth(40);
         remove.setPrefHeight(20);
-        remove.setOnAction(event -> qty.setText(Integer.toString(Integer.parseInt(qty.getText())-1)));
+        remove.setOnAction(event -> {
+            qty.setText(Integer.toString(Integer.parseInt(qty.getText()) - 1));
+            CartContent.removeOneToItem(item, type);
+            computePrice();
+        });
 
         qty.textProperty().addListener((observableValue, s, t1) -> {
             if(Integer.parseInt(t1) <= 0){
                 removeFromCart(newRow);
+                CartContent.supprItem(item, type);
+                computePrice();
             }
         });
 
@@ -163,14 +182,65 @@ public class MainController {
         cartGrid.add(remove, 1, newRow);
         cartGrid.add(qty, 2, newRow);
         cartGrid.add(add, 3, newRow);
+        computePrice();
     }
 
     public void removeFromCart(int row){
         cartGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == row);
     }
 
+    public void computePrice(){
+        List<Item> snackList = CartContent.getSnacksList();
+        List<Item> boissonList = CartContent.getBoissonsList();
+        List<Item> autreList = CartContent.getAutresList();
+
+        double prixSnacks = 0.0;
+        int nbSnacks = 0;
+        for (Item i : snackList){
+            prixSnacks += i.getQuantity() * Double.parseDouble(i.getPRICE());
+            nbSnacks += i.getQuantity();
+        }
+
+        double prixBoissons = 0.0;
+        int nbBoissons = 0;
+        for (Item i : boissonList){
+            prixBoissons += i.getQuantity() * Double.parseDouble(i.getPRICE());
+            nbBoissons += i.getQuantity();
+        }
+
+        double prixAutres = 0.0;
+        for (Item i : autreList){
+            prixAutres += i.getQuantity() * Double.parseDouble(i.getPRICE());
+        }
+
+        double prix = prixSnacks + prixBoissons + prixAutres;
+
+        while(nbSnacks > 0 && nbBoissons > 0){
+            prix -= 0.2;
+            nbSnacks--;
+            nbBoissons--;
+        }
+
+        //Les blocs catch sont vides c'est normal, c'est pour avoir un update du prix même quand on laisse un champ vide
+        try{
+            prix -= Double.parseDouble(freeConsoField.getText()) * 0.6;
+        } catch (NumberFormatException e){
+        }
+
+        try{
+            prix -= Double.parseDouble(freeMenuField.getText()) * 1;
+        } catch (NumberFormatException e){
+        }
+
+        DecimalFormat df = new DecimalFormat("#.#");
+        df.setRoundingMode(RoundingMode.HALF_DOWN);
+
+        priceLabel.setText(df.format(prix) + " €");
+    }
+
     public void clearCart(){
         cartGrid.getChildren().clear();
-        priceLabel.setText("0,00 €");
+        CartContent.clear();
+        computePrice();
     }
 }

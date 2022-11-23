@@ -21,6 +21,10 @@ public class Item {
         return this.quantity; //TODO make sure to handle negative returned values
     }
 
+    public void setQuantity(int quantity){
+        this.quantity = quantity;
+    }
+
     public String getNAME(){
         return this.NAME;
     }

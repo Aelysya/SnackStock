@@ -32,7 +32,10 @@ public class MainController {
     @FXML
     private TextField freeConsoField, freeMenuField;
 
+    private String currentTab;
+
     public void initialize() {
+        currentTab = "None";
         Stock.addItem(new Item("Kit Kat", 2, "0.60"), "snack");
         Stock.addItem(new Item("Granola", 5, "0.60"), "snack");
         Stock.addItem(new Item("Skittles", 10, "0.60"), "snack");
@@ -81,8 +84,6 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ManagementController c = fxmlLoader.getController();
-        c.setMainController(this);
         Stage stage = new Stage();
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -106,6 +107,7 @@ public class MainController {
     }
 
     public void showTab(String type){
+        currentTab = type;
         itemsGrid.getChildren().clear();
         int cpt = 0;
         List<Item> list = switch (type) {
@@ -143,22 +145,35 @@ public class MainController {
                     CartContent.addItem(i, type);
                     addItemToCart(i, type);
                 }
+                updateTabLabel();
             });
 
             itemsGrid.add(name, 0, cpt);
-            itemsGrid.add(price, 1, cpt);
+            itemsGrid.add(type.equals("autre") ? price : new Label(""), 1, cpt);
             itemsGrid.add(quantity, 2, cpt);
             itemsGrid.add(add, 3, cpt);
 
             cpt++;
         }
+        updateTabLabel();
+    }
 
-        currentTabLabel.setText(switch (type) {
-            case "snack" -> "Snacks";
-            case "boisson" -> "Boissons";
-            case "autre" -> "Autres";
-            default -> "Aucun onglet sélectionné";
-        });
+    public void updateTabLabel(){
+        int nbSnacks = 0;
+        for (Item i : CartContent.getSnacksList()){
+            nbSnacks += i.getQuantity();
+        }
+
+        int nbBoissons = 0;
+        for (Item i : CartContent.getBoissonsList()){
+            nbBoissons += i.getQuantity();
+        }
+
+        switch (currentTab) {
+            case "snack" -> currentTabLabel.setText(nbBoissons > nbSnacks ? "Snacks - 0.40 €" : "Snacks - 0.60 €");
+            case "boisson" -> currentTabLabel.setText(nbSnacks > nbBoissons ? "Boissons - 0.40 €" : "Boissons - 0.60 €");
+            case "autre" -> currentTabLabel.setText("Autres");
+        }
     }
 
     public void addItemToCart(Item item, String type){
@@ -251,6 +266,7 @@ public class MainController {
         df.setRoundingMode(RoundingMode.HALF_DOWN);
 
         priceLabel.setText(df.format(prix) + " €");
+        updateTabLabel();
     }
 
     public void confirmSale(){

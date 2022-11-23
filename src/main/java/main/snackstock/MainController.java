@@ -188,8 +188,12 @@ public class MainController {
         add.setPrefHeight(20);
         add.setOnAction(event -> {
             qty.setText(Integer.toString(Integer.parseInt(qty.getText()) + 1));
-            CartContent.addOneToItem(item, type);
-            computePrice();
+            if(Integer.parseInt(qty.getText()) > item.getQuantity()){
+                qty.setText(Integer.toString(item.getQuantity()));
+            } else {
+                CartContent.addOneToItem(item, type);
+                computePrice();
+            }
         });
         Button remove = new Button("-");
         remove.setPrefWidth(40);

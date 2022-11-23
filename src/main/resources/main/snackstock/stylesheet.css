@@ -1,0 +1,28 @@
+.leftPart{
+    -fx-border-color: black;
+    -fx-border-width: 0px 3px 0px 0px;
+}
+
+.pricePart{
+    -fx-border-color: black;
+    -fx-border-width: 3px 0px;
+}
+
+.ajouterPart{
+    -fx-border-color: black;
+    -fx-border-width: 3px 0px 0px 0px;
+}
+
+.tabPart{
+    -fx-border-color: black;
+    -fx-border-width: 0px 0px 3px 0px;
+}
+
+.but{
+    -fx-font-size: 30px;
+}
+
+.window{
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+}

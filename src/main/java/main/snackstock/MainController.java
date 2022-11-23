@@ -13,6 +13,9 @@ import main.snackstock.gestionStock.CartContent;
 import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -34,9 +37,11 @@ public class MainController {
 
     private String currentTab;
 
-    public void initialize() {
+    public void initialize() throws IOException {
         currentTab = "None";
-        Stock.addItem(new Item("Kit Kat", 2, "0.60"), "snack");
+
+        readStockFile();
+        /*Stock.addItem(new Item("Kit Kat", 2, "0.60"), "snack");
         Stock.addItem(new Item("Granola", 5, "0.60"), "snack");
         Stock.addItem(new Item("Skittles", 10, "0.60"), "snack");
         Stock.addItem(new Item("Nutella B-Ready", 54, "0.60"), "snack");
@@ -45,7 +50,7 @@ public class MainController {
         Stock.addItem(new Item("Coca-cola", 2, "0.60"), "boisson");
         Stock.addItem(new Item("Ice Tea", 2, "0.60"), "boisson");
         Stock.addItem(new Item("Sprite", 2, "0.60"), "boisson");
-        Stock.addItem(new Item("Bouteille d'eau", 5, "1.20"), "autre");
+        Stock.addItem(new Item("Bouteille d'eau", 5, "1.20"), "autre");*/
 
         snacksButton.setOnAction(event -> showTab("snack"));
         boissonsButton.setOnAction(event -> showTab("boisson"));
@@ -58,6 +63,18 @@ public class MainController {
 
         freeMenuField.textProperty().addListener((observableValue, s, t1) -> computePrice());
         freeConsoField.textProperty().addListener((observableValue, s, t1) -> computePrice());
+    }
+
+    public void readStockFile() throws IOException {
+        String path = "src/main/resources/main/snackstock/stock.csv";
+        BufferedReader csvReader = new BufferedReader(new FileReader(path));
+        String row;
+        while((row = csvReader.readLine()) != null){
+            String[] data = row.split(",");
+            Item item = new Item(data[0], Integer.parseInt(data[1]), data[2]);
+            Stock.addItem(item, data[3]);
+        }
+        csvReader.close();
     }
 
     public void launchAuthBeforeManagement() {
@@ -128,24 +145,26 @@ public class MainController {
             add.setPrefWidth(100);
             add.setPrefHeight(30);
             add.setOnAction(event -> {
-                boolean alreadyInCart = false;
-                List<Item> listCart = switch (type) {
-                    case "snack" -> CartContent.getSnacksList();
-                    case "boisson" -> CartContent.getBoissonsList();
-                    case "autre" -> CartContent.getAutresList();
-                    default -> new ArrayList<>();
-                };
-                for(Item item : listCart){
-                    if (item.getNAME().equals(i.getNAME())) {
-                        alreadyInCart = true;
-                        break;
+                if(i.getQuantity() != 0){
+                    boolean alreadyInCart = false;
+                    List<Item> listCart = switch (type) {
+                        case "snack" -> CartContent.getSnacksList();
+                        case "boisson" -> CartContent.getBoissonsList();
+                        case "autre" -> CartContent.getAutresList();
+                        default -> new ArrayList<>();
+                    };
+                    for(Item item : listCart){
+                        if (item.getNAME().equals(i.getNAME())) {
+                            alreadyInCart = true;
+                            break;
+                        }
                     }
+                    if(!alreadyInCart){
+                        CartContent.addItem(i, type);
+                        addItemToCart(i, type);
+                    }
+                    updateTabLabel();
                 }
-                if(!alreadyInCart){
-                    CartContent.addItem(i, type);
-                    addItemToCart(i, type);
-                }
-                updateTabLabel();
             });
 
             itemsGrid.add(name, 0, cpt);

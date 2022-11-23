@@ -13,10 +13,7 @@ import main.snackstock.gestionStock.CartContent;
 import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -75,6 +72,33 @@ public class MainController {
             Stock.addItem(item, data[3]);
         }
         csvReader.close();
+    }
+
+    public void updateStockFile() throws IOException {
+        FileWriter csvWriter = new FileWriter("src/main/resources/main/snackstock/stock.csv");
+        for(Item i : Stock.getSnacksList()){
+            csvWriter.append(i.getNAME()).append(",");
+            csvWriter.append(Integer.toString(i.getQuantity())).append(",");
+            csvWriter.append(i.getPRICE()).append(",");
+            csvWriter.append("snack\n");
+        }
+
+        for(Item i : Stock.getBoissonsList()){
+            csvWriter.append(i.getNAME()).append(",");
+            csvWriter.append(Integer.toString(i.getQuantity())).append(",");
+            csvWriter.append(i.getPRICE()).append(",");
+            csvWriter.append("boisson\n");
+        }
+
+        for(Item i : Stock.getAutresList()){
+            csvWriter.append(i.getNAME()).append(",");
+            csvWriter.append(Integer.toString(i.getQuantity())).append(",");
+            csvWriter.append(i.getPRICE()).append(",");
+            csvWriter.append("autre\n");
+        }
+
+        csvWriter.flush();
+        csvWriter.close();
     }
 
     public void launchAuthBeforeManagement() {
@@ -292,7 +316,7 @@ public class MainController {
         updateTabLabel();
     }
 
-    public void confirmSale(){
+    public void confirmSale() throws IOException {
         for(Item i : CartContent.getSnacksList()){
             Stock.removeQuantityFromItem(i, "snack", i.getQuantity());
         }
@@ -302,6 +326,7 @@ public class MainController {
         for(Item i : CartContent.getAutresList()){
             Stock.removeQuantityFromItem(i, "autre", i.getQuantity());
         }
+        updateStockFile();
         clearCart();
     }
 

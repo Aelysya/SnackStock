@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -89,7 +88,7 @@ public class ManagementController {
             remove.setPrefHeight(20);
             remove.setOnAction(event -> {
                 quantity.setText(Integer.toString(Integer.parseInt(quantity.getText())-1));
-                Stock.removeOneToItem(i, type);
+                Stock.removeQuantityFromItem(i, type, 1);
             });
             Button suppr = new Button("Supprimer");
             suppr.setPrefWidth(80);

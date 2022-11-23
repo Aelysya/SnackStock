@@ -12,11 +12,17 @@ public class Item {
         PRICE = price;
     }
 
+    public Item(Item i){
+        this.NAME = i.getNAME();
+        this.quantity = i.getQuantity();
+        this.PRICE = i.getPRICE();
+    }
+
     public void addOneToQuantity(){
         this.quantity ++;
     }
 
-    public int buy(int amount){
+    public int removeFromQuantity(int amount){
         this.quantity -= amount;
         return this.quantity; //TODO make sure to handle negative returned values
     }

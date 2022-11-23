@@ -126,8 +126,23 @@ public class MainController {
             add.setPrefWidth(100);
             add.setPrefHeight(30);
             add.setOnAction(event -> {
-                CartContent.addItem(i, type);
-                addItemToCart(i, type);
+                boolean alreadyInCart = false;
+                List<Item> listCart = switch (type) {
+                    case "snack" -> CartContent.getSnacksList();
+                    case "boisson" -> CartContent.getBoissonsList();
+                    case "autre" -> CartContent.getAutresList();
+                    default -> new ArrayList<>();
+                };
+                for(Item item : listCart){
+                    if (item.getNAME().equals(i.getNAME())) {
+                        alreadyInCart = true;
+                        break;
+                    }
+                }
+                if(!alreadyInCart){
+                    CartContent.addItem(i, type);
+                    addItemToCart(i, type);
+                }
             });
 
             itemsGrid.add(name, 0, cpt);
@@ -238,9 +253,23 @@ public class MainController {
         priceLabel.setText(df.format(prix) + " €");
     }
 
+    public void confirmSale(){
+        for(Item i : CartContent.getSnacksList()){
+            Stock.removeQuantityFromItem(i, "snack", i.getQuantity());
+        }
+        for(Item i : CartContent.getBoissonsList()){
+            Stock.removeQuantityFromItem(i, "boisson", i.getQuantity());
+        }
+        for(Item i : CartContent.getAutresList()){
+            Stock.removeQuantityFromItem(i, "autre", i.getQuantity());
+        }
+        clearCart();
+    }
+
     public void clearCart(){
         cartGrid.getChildren().clear();
         CartContent.clear();
         computePrice();
+        showTab("snack");
     }
 }

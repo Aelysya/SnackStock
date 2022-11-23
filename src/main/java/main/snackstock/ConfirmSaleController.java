@@ -33,7 +33,7 @@ public class ConfirmSaleController {
 
     public void checkPassword(){
         if(passField.getText().equals(Stock.getMdp())){
-            mainController.clearCart();
+            mainController.confirmSale();
             Stage stage = (Stage) confirmButton.getScene().getWindow();
             stage.close();
         } else {

@@ -17,11 +17,12 @@ public class CartContent {
     public CartContent(){}
 
     public static void addItem(Item item, String type){
-        item.setQuantity(1);
+        Item newItem = new Item(item);
+        newItem.setQuantity(1);
         switch (type) {
-            case "snack" -> snacksList.add(item);
-            case "boisson" -> boissonsList.add(item);
-            case "autre" -> autresList.add(item);
+            case "snack" -> snacksList.add(newItem);
+            case "boisson" -> boissonsList.add(newItem);
+            case "autre" -> autresList.add(newItem);
             default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
@@ -60,7 +61,7 @@ public class CartContent {
 
         for(Item item : list){
             if(i.getNAME().equals(item.getNAME())){
-                item.buy(1);
+                item.removeFromQuantity(1);
             }
         }
     }

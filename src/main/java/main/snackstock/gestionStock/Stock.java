@@ -50,7 +50,7 @@ public class Stock {
         }
     }
 
-    public static void removeOneToItem(Item i, String type){
+    public static void removeQuantityFromItem(Item i, String type, int qty){
         List<Item> list = switch (type) {
             case "snack" -> snacksList;
             case "boisson" -> boissonsList;
@@ -60,7 +60,7 @@ public class Stock {
 
         for(Item item : list){
             if(i.getNAME().equals(item.getNAME())){
-                item.buy(1);
+                item.removeFromQuantity(qty);
             }
         }
     }

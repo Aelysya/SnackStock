@@ -6,7 +6,20 @@ import java.util.Objects;
 
 public class CartContent {
 
-    private static final List<Item> snacksList, boissonsList, autresList;
+    /**
+     * Liste des item de type snack
+     */
+    private static final List<Item> snacksList;
+
+    /**
+     * Liste des item de type boisson
+     */
+    private static final List<Item> boissonsList;
+
+    /**
+     * Liste des item de type autre
+     */
+    private static final List<Item> autresList;
 
     static {
         snacksList = new ArrayList<>();
@@ -14,64 +27,62 @@ public class CartContent {
         autresList = new ArrayList<>();
     }
 
-    public CartContent(){}
-
-    public static void addItem(Item item, String type){
+    /**
+     * Ajoute un item au stock
+     * @param item L'item à ajouter
+     */
+    public static void addItem(Item item){
         Item newItem = new Item(item);
         newItem.setQuantity(1);
-        switch (type) {
-            case "snack" -> snacksList.add(newItem);
-            case "boisson" -> boissonsList.add(newItem);
-            case "autre" -> autresList.add(newItem);
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        }
+        getListFromTypeString(item.getTYPE()).add(newItem);
     }
 
-    public static void supprItem(Item i, String type){
-        switch (type) {
-            case "snack" -> snacksList.removeIf(item -> (Objects.equals(item.getNAME(), i.getNAME())));
-            case "boisson" -> boissonsList.removeIf(item -> (Objects.equals(item.getNAME(), i.getNAME())));
-            case "autre" -> autresList.removeIf(item -> (Objects.equals(item.getNAME(), i.getNAME())));
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        }
+    /**
+     * Supprime un item du stock
+     * @param item L'item à supprimer
+     */
+    public static void supprItem(Item item){
+        getListFromTypeString(item.getTYPE()).removeIf(i -> (Objects.equals(item.getNAME(), i.getNAME())));
     }
 
-    public static void addOneToItem(Item i, String type){
-        List<Item> list = switch (type) {
-            case "snack" -> snacksList;
-            case "boisson" -> boissonsList;
-            case "autre" -> autresList;
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        };
-
-        for(Item item : list){
+    /**
+     * Ajoute 1 à la quantité d'un item en stock
+     * @param item L'item dont il faut augmenter la quantité
+     */
+    public static void addOneToItem(Item item){
+        for(Item i : getListFromTypeString(item.getTYPE())){
             if(i.getNAME().equals(item.getNAME())){
-                item.addOneToQuantity();
+                i.addOneToQuantity();
             }
         }
     }
 
-    public static void removeOneToItem(Item i, String type){
-        List<Item> list = switch (type) {
-            case "snack" -> snacksList;
-            case "boisson" -> boissonsList;
-            case "autre" -> autresList;
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        };
-
-        for(Item item : list){
+    /**
+     * Retire un certaine quantité d'un item en stock
+     * @param item L'item dont il faut réduire la quantité
+     */
+    public static void removeOneFromItem(Item item){
+        for(Item i : getListFromTypeString(item.getTYPE())){
             if(i.getNAME().equals(item.getNAME())){
-                item.removeFromQuantity(1);
+                i.removeFromQuantity(1);
             }
         }
     }
 
+    /**
+     * Vide le panier
+     */
     public static void clear(){
         snacksList.clear();
         boissonsList.clear();
         autresList.clear();
     }
 
+    /**
+     * Donne la liste contenant le type d'item demandé
+     * @param type Type de la liste demandée
+     * @return La liste demandée
+     */
     public static List<Item> getListFromTypeString(String type){
         return switch (type) {
             case "snack" -> snacksList;

@@ -5,9 +5,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
+import main.snackstock.controllers.BaseController;
 import main.snackstock.gestionStock.Stock;
 
-public class AuthManagementController {
+public class AuthManagementController extends BaseController {
     @FXML
     private Button confirmButton, annulerButton;
 
@@ -17,8 +18,6 @@ public class AuthManagementController {
     @FXML
     private Label topTextLabel;
 
-    private MainController mainController;
-
     public void initialize() {
         confirmButton.setOnAction(event -> checkPassword());
         annulerButton.setOnAction(event -> {
@@ -27,13 +26,9 @@ public class AuthManagementController {
         });
     }
 
-    public void setMainController(MainController mc){
-        this.mainController = mc;
-    }
-
     public void checkPassword(){
         if(passField.getText().equals(Stock.getMdp())){
-            this.mainController.launchStockManagement();
+            this.mainController.launchNewWindow("management");
             Stage stage = (Stage) confirmButton.getScene().getWindow();
             stage.close();
         } else {

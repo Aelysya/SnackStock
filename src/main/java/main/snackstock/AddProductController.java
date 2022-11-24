@@ -42,7 +42,7 @@ public class AddProductController {
     }
 
     public void checkProduct() throws NumberFormatException{
-        int qty = 0;
+        int qty;
         try{
             if(Integer.parseInt(quantityField.getText()) <=0){
                 throw new NumberFormatException();
@@ -66,8 +66,8 @@ public class AddProductController {
             return;
         }
 
-        Item i = new Item(nameField.getText(), qty, priceField.getText());
-        Stock.addItem(i, typeComboBox.getValue());
+        Item i = new Item(nameField.getText(), qty, priceField.getText(), typeComboBox.getValue());
+        Stock.addItem(i);
         managementController.showTab(typeComboBox.getValue());
         Stage stage = (Stage) annulerButton.getScene().getWindow();
         stage.close();

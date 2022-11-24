@@ -5,11 +5,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
+import main.snackstock.controllers.BaseController;
 import main.snackstock.gestionStock.Stock;
 
 import java.io.IOException;
 
-public class ConfirmSaleController {
+public class ConfirmSaleController extends BaseController {
     @FXML
     private Button confirmButton, annulerButton;
 
@@ -18,8 +19,6 @@ public class ConfirmSaleController {
 
     @FXML
     private Label topTextLabel;
-
-    private MainController mainController;
 
     public void initialize() {
         confirmButton.setOnAction(event -> {
@@ -33,10 +32,6 @@ public class ConfirmSaleController {
             Stage stage = (Stage) annulerButton.getScene().getWindow();
             stage.close();
         });
-    }
-
-    public void setMainController(MainController mc){
-        this.mainController = mc;
     }
 
     public void checkPassword() throws IOException {

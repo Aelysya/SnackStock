@@ -8,13 +8,14 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import main.snackstock.controllers.BaseController;
 import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
 
 import java.io.IOException;
 import java.util.List;
 
-public class ManagementController {
+public class ManagementController extends BaseController {
     @FXML
     private Label currentTabLabel;
 
@@ -23,8 +24,6 @@ public class ManagementController {
 
     @FXML
     private GridPane itemsGrid;
-
-    private MainController mainController;
 
     public void initialize() {
         snacksButton.setOnAction(event -> showTab("snack"));
@@ -35,6 +34,7 @@ public class ManagementController {
         sortirButton.setOnAction(event -> {
             try {
                 mainController.updateStockFile();
+                mainController.clearCart();
                 mainController.showTab("snack");
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -42,10 +42,6 @@ public class ManagementController {
             Stage stage = (Stage) boissonsButton.getScene().getWindow();
             stage.close();
         });
-    }
-
-    public void setMainController(MainController mc){
-        this.mainController = mc;
     }
 
     public void launchAddProduct() {
@@ -81,26 +77,26 @@ public class ManagementController {
             add.setPrefHeight(20);
             add.setOnAction(event -> {
                 quantity.setText(Integer.toString(Integer.parseInt(quantity.getText())+1));
-                Stock.addOneToItem(i, type);
+                Stock.addOneToItem(i);
             });
             Button remove = new Button("-");
             remove.setPrefWidth(50);
             remove.setPrefHeight(20);
             remove.setOnAction(event -> {
                 quantity.setText(Integer.toString(Integer.parseInt(quantity.getText())-1));
-                Stock.removeQuantityFromItem(i, type, 1);
+                Stock.removeQuantityFromItem(i, 1);
             });
             Button suppr = new Button("Supprimer");
             suppr.setPrefWidth(80);
             suppr.setPrefHeight(20);
             suppr.setOnAction(event -> {
-                Stock.supprItem(i, type);
+                Stock.supprItem(i);
                 showTab(type);
             });
 
             quantity.textProperty().addListener((observableValue, s, t1) -> {
                 if(Integer.parseInt(t1) <= 0){
-                    Stock.supprItem(i, type);
+                    Stock.supprItem(i);
                     showTab(type);
                 }
             });

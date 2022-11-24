@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import main.snackstock.controllers.BaseController;
 import main.snackstock.gestionStock.CartContent;
 import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
@@ -42,9 +43,9 @@ public class MainController {
         boissonsButton.setOnAction(event -> showTab("boisson"));
         autresButton.setOnAction(event -> showTab("autre"));
 
-        gererButton.setOnAction(event -> launchAuthBeforeManagement());
+        gererButton.setOnAction(event -> launchNewWindow("auth"));
 
-        validerButton.setOnAction(event -> launchConfirmation());
+        validerButton.setOnAction(event -> launchNewWindow("confirm"));
         annulerButton.setOnAction(event -> {
             freeMenuField.setText("0");
             freeConsoField.setText("0");
@@ -55,18 +56,27 @@ public class MainController {
         freeConsoField.textProperty().addListener((observableValue, s, t1) -> computePrice());
     }
 
+    /**
+     * Lit le fichier de stock au lancement de l'application
+     * @throws IOException Fichier de stock introuvable
+     *
+     */
     public void readStockFile() throws IOException {
         String path = "src/main/resources/main/snackstock/stock.csv";
         BufferedReader csvReader = new BufferedReader(new FileReader(path));
         String row;
         while((row = csvReader.readLine()) != null){
             String[] data = row.split(",");
-            Item item = new Item(data[0], Integer.parseInt(data[1]), data[2]);
-            Stock.addItem(item, data[3]);
+            Item item = new Item(data[0], Integer.parseInt(data[1]), data[2], data[3]);
+            Stock.addItem(item);
         }
         csvReader.close();
     }
 
+    /**
+     * Met à jour le stock
+     * @throws IOException Fichier de stock introuvable
+     */
     public void updateStockFile() throws IOException {
         FileWriter csvWriter = new FileWriter("src/main/resources/main/snackstock/stock.csv");
         for(Item i : Stock.getSnacksList()){
@@ -94,15 +104,39 @@ public class MainController {
         csvWriter.close();
     }
 
-    public void launchAuthBeforeManagement() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("auth-management.fxml"));
+    /**
+     * Lance une nouvelle fenêtre
+     * @param controllerName Nom du controller pour déterminer les paramètres de lancement de la nouvelle fenêtre
+     */
+    public void launchNewWindow(String controllerName){
+        String fxmlName;
+        int width, height;
+        switch(controllerName){
+            case "auth" -> {
+                width = 360;
+                height = 200;
+                fxmlName = "auth-management.fxml";
+            }
+            case "management" -> {
+                width = 1280;
+                height = 720;
+                fxmlName = "management-view.fxml";
+            }
+            case "confirm" -> {
+                width = 360;
+                height = 200;
+                fxmlName = "confirm-sale.fxml";
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + controllerName);
+        }
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlName));
         Scene scene = null;
         try {
-            scene = new Scene(fxmlLoader.load(), 360, 200);
+            scene = new Scene(fxmlLoader.load(), width, height);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        AuthManagementController c = fxmlLoader.getController();
+        BaseController c = fxmlLoader.getController();
         c.setMainController(this);
         Stage stage = new Stage();
         stage.initStyle(StageStyle.UNDECORATED);
@@ -110,38 +144,10 @@ public class MainController {
         stage.show();
     }
 
-    public void launchStockManagement() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("management-view.fxml"));
-        Scene scene = null;
-        try {
-            scene = new Scene(fxmlLoader.load(), 1280, 720);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ManagementController c = fxmlLoader.getController();
-        c.setMainController(this);
-        Stage stage = new Stage();
-        stage.initStyle(StageStyle.UNDECORATED);
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    public void launchConfirmation() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("confirm-sale.fxml"));
-        Scene scene = null;
-        try {
-            scene = new Scene(fxmlLoader.load(), 360, 200);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ConfirmSaleController c = fxmlLoader.getController();
-        c.setMainController(this);
-        Stage stage = new Stage();
-        stage.initStyle(StageStyle.UNDECORATED);
-        stage.setScene(scene);
-        stage.show();
-    }
-
+    /**
+     * Affiche l'onglet choisi
+     * @param type Nom de l'onglet à afficher
+     */
     public void showTab(String type){
         currentTab = type;
         itemsGrid.getChildren().clear();
@@ -151,10 +157,13 @@ public class MainController {
         for(Item i : list){
             Label name = new Label(i.getNAME());
             name.setStyle("-fx-font-size: 20px");
+
             Label price = new Label(i.getPRICE() + " €");
             price.setStyle("-fx-font-size: 20px");
+
             Label quantity = new Label(Integer.toString(i.getQuantity()));
             quantity.setStyle("-fx-font-size: 20px");
+
             Button add = new Button("Ajouter");
             add.setPrefWidth(100);
             add.setPrefHeight(30);
@@ -169,10 +178,9 @@ public class MainController {
                         }
                     }
                     if(!alreadyInCart){
-                        CartContent.addItem(i, type);
-                        addItemToCart(i, type);
+                        CartContent.addItem(i);
+                        addItemToCart(i);
                     }
-                    updateTabLabel();
                 }
             });
 
@@ -186,6 +194,9 @@ public class MainController {
         updateTabLabel();
     }
 
+    /**
+     * Met à jour le label situé en dessous des onglets avec le prix d'ajout d'un item dans le panier
+     */
     public void updateTabLabel(){
         int nbSnacks = 0;
         for (Item i : CartContent.getSnacksList()){
@@ -201,16 +212,30 @@ public class MainController {
             case "snack" -> currentTabLabel.setText(nbBoissons > nbSnacks ? "Snacks - 0.40 €" : "Snacks - 0.60 €");
             case "boisson" -> currentTabLabel.setText(nbSnacks > nbBoissons ? "Boissons - 0.40 €" : "Boissons - 0.60 €");
             case "autre" -> currentTabLabel.setText("Autres");
+            default -> throw new IllegalStateException("Unexpected value: " + currentTab);
         }
     }
 
-    public void addItemToCart(Item item, String type){
+    /**
+     * Ajoute un item au panier
+     * @param item L'item à ajouter
+     */
+    public void addItemToCart(Item item){
         int newRow = cartGrid.getRowCount();
 
         Label name = new Label(item.getNAME());
         name.setStyle("-fx-font-size: 20px");
+
         Label qty = new Label("1");
         qty.setStyle("-fx-font-size: 20px");
+        qty.textProperty().addListener((observableValue, s, t1) -> {
+            if(Integer.parseInt(t1) <= 0){
+                cartGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == newRow);
+                CartContent.supprItem(item);
+                computePrice();
+            }
+        });
+
         Button add = new Button("+");
         add.setPrefWidth(40);
         add.setPrefHeight(20);
@@ -219,25 +244,18 @@ public class MainController {
             if(Integer.parseInt(qty.getText()) > item.getQuantity()){
                 qty.setText(Integer.toString(item.getQuantity()));
             } else {
-                CartContent.addOneToItem(item, type);
+                CartContent.addOneToItem(item);
                 computePrice();
             }
         });
+
         Button remove = new Button("-");
         remove.setPrefWidth(40);
         remove.setPrefHeight(20);
         remove.setOnAction(event -> {
             qty.setText(Integer.toString(Integer.parseInt(qty.getText()) - 1));
-            CartContent.removeOneToItem(item, type);
+            CartContent.removeOneFromItem(item);
             computePrice();
-        });
-
-        qty.textProperty().addListener((observableValue, s, t1) -> {
-            if(Integer.parseInt(t1) <= 0){
-                removeFromCart(newRow);
-                CartContent.supprItem(item, type);
-                computePrice();
-            }
         });
 
         cartGrid.add(name, 0, newRow);
@@ -247,10 +265,9 @@ public class MainController {
         computePrice();
     }
 
-    public void removeFromCart(int row){
-        cartGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == row);
-    }
-
+    /**
+     * Calcule le prix selon le contenu du panier
+     */
     public void computePrice(){
         List<Item> snackList = CartContent.getSnacksList();
         List<Item> boissonList = CartContent.getBoissonsList();
@@ -300,22 +317,32 @@ public class MainController {
         updateTabLabel();
     }
 
+    /**
+     * Confirme l'achat des items du panier
+     * @throws IOException Fichier de stock introuvable
+     */
     public void confirmSale() throws IOException {
         for(Item i : CartContent.getSnacksList()){
-            Stock.removeQuantityFromItem(i, "snack", i.getQuantity());
+            Stock.removeQuantityFromItem(i, i.getQuantity());
         }
+
         for(Item i : CartContent.getBoissonsList()){
-            Stock.removeQuantityFromItem(i, "boisson", i.getQuantity());
+            Stock.removeQuantityFromItem(i, i.getQuantity());
         }
+
         for(Item i : CartContent.getAutresList()){
-            Stock.removeQuantityFromItem(i, "autre", i.getQuantity());
+            Stock.removeQuantityFromItem(i, i.getQuantity());
         }
+
         freeMenuField.setText("0");
         freeConsoField.setText("0");
         updateStockFile();
         clearCart();
     }
 
+    /**
+     * Vide le panier et reset le compteur de prix
+     */
     public void clearCart(){
         cartGrid.getChildren().clear();
         CartContent.clear();

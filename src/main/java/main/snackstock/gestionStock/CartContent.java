@@ -72,6 +72,15 @@ public class CartContent {
         autresList.clear();
     }
 
+    public static List<Item> getListFromTypeString(String type){
+        return switch (type) {
+            case "snack" -> snacksList;
+            case "boisson" -> boissonsList;
+            case "autre" -> autresList;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
     public static List<Item> getSnacksList(){
         return snacksList;
     }

@@ -16,7 +16,6 @@ import main.snackstock.gestionStock.Stock;
 import java.io.*;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainController {
@@ -147,12 +146,7 @@ public class MainController {
         currentTab = type;
         itemsGrid.getChildren().clear();
         int cpt = 0;
-        List<Item> list = switch (type) {
-            case "snack" -> Stock.getSnacksList();
-            case "boisson" -> Stock.getBoissonsList();
-            case "autre" -> Stock.getAutresList();
-            default -> new ArrayList<>();
-        };
+        List<Item> list = Stock.getListFromTypeString(type);
 
         for(Item i : list){
             Label name = new Label(i.getNAME());
@@ -167,12 +161,7 @@ public class MainController {
             add.setOnAction(event -> {
                 if(i.getQuantity() != 0){
                     boolean alreadyInCart = false;
-                    List<Item> listCart = switch (type) {
-                        case "snack" -> CartContent.getSnacksList();
-                        case "boisson" -> CartContent.getBoissonsList();
-                        case "autre" -> CartContent.getAutresList();
-                        default -> new ArrayList<>();
-                    };
+                    List<Item> listCart = CartContent.getListFromTypeString(type);
                     for(Item item : listCart){
                         if (item.getNAME().equals(i.getNAME())) {
                             alreadyInCart = true;

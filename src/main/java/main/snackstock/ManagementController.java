@@ -12,7 +12,6 @@ import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ManagementController {
@@ -68,12 +67,7 @@ public class ManagementController {
     public void showTab(String type){
         itemsGrid.getChildren().clear();
         int cpt = 0;
-        List<Item> list = switch (type) {
-            case "snack" -> Stock.getSnacksList();
-            case "boisson" -> Stock.getBoissonsList();
-            case "autre" -> Stock.getAutresList();
-            default -> new ArrayList<>();
-        };
+        List<Item> list = Stock.getListFromTypeString(type);
 
         for(Item i : list){
             Label name = new Label(i.getNAME());
@@ -121,11 +115,10 @@ public class ManagementController {
             cpt++;
         }
 
-        currentTabLabel.setText(switch (type) {
-            case "snack" -> "Snacks";
-            case "boisson" -> "Boissons";
-            case "autre" -> "Autres";
-            default -> "Aucun onglet sélectionné";
-        });
+        String s;
+        String firstLetter = type.substring(0, 1);
+        String otherLetters = type.substring(1);
+        s = firstLetter.toUpperCase() + otherLetters + "s";
+        currentTabLabel.setText(s);
     }
 }

@@ -26,6 +26,9 @@ public class AuthManagementController extends BaseController {
         });
     }
 
+    /**
+     * Vérifie le mot de passe entré par l'utilisateur, si correct lance la fenêtre de gestion
+     */
     public void checkPassword(){
         if(passField.getText().equals(Stock.getMdp())){
             this.mainController.launchNewWindow("management");

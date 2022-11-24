@@ -6,14 +6,20 @@ public class Item {
      * Nom de l'item
      */
     private final String NAME;
+
     /**
      * Quantité en stock de l'item
      */
     private int quantity;
+
     /**
      * Prix de l'item
      */
     private final String PRICE;
+
+    /**
+     * Type de l'item
+     */
     private final String TYPE;
 
     public Item(String name, int quantity, String price, String type) {

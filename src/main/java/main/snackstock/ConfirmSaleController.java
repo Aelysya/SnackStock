@@ -34,6 +34,10 @@ public class ConfirmSaleController extends BaseController {
         });
     }
 
+    /**
+     * Vérifie le mot de passe entré par l'utilisateur, lance la confirmation de l'achat
+     * @throws IOException  Fichier de stock introuvable
+     */
     public void checkPassword() throws IOException {
         if(passField.getText().equals(Stock.getMdp())){
             mainController.confirmSale();

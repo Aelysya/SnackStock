@@ -25,11 +25,13 @@ public class AddProductController {
     private ManagementController managementController;
 
     public void initialize() {
+        priceField.setDisable(true);
         typeComboBox.getItems().addAll(
                 "snack",
                 "boisson",
                 "autre"
         );
+        typeComboBox.valueProperty().addListener((observableValue, s, t1) -> priceField.setDisable(!t1.equals("autre")));
         confirmButton.setOnAction(event -> checkProduct());
         annulerButton.setOnAction(event -> {
             Stage stage = (Stage) annulerButton.getScene().getWindow();
@@ -37,12 +39,13 @@ public class AddProductController {
         });
     }
 
-    public void setManagementController(ManagementController mc){
-        this.managementController = mc;
-    }
-
+    /**
+     * Vérifie les valeurs entrées dans les champs avant d'ajouter l'item dans le stock
+     * @throws NumberFormatException La quantité ou le prix ont un format invalide
+     */
     public void checkProduct() throws NumberFormatException{
         int qty;
+        String selectedType = typeComboBox.getValue();
         try{
             if(Integer.parseInt(quantityField.getText()) <=0){
                 throw new NumberFormatException();
@@ -54,22 +57,33 @@ public class AddProductController {
             return;
         }
 
-        try{
-            Double.parseDouble(priceField.getText());
-        } catch (NumberFormatException e) {
-            topTextLabel.setText("Prix invalide");
-            return;
-        }
-
-        if(typeComboBox.getValue() == null){
+        if(selectedType == null){
             topTextLabel.setText("Choisissez un type");
             return;
         }
 
-        Item i = new Item(nameField.getText(), qty, priceField.getText(), typeComboBox.getValue());
+        String price;
+        if(selectedType.equals("snack") || selectedType.equals("boisson")){
+            price = "0.60";
+        } else {
+            try {
+                Double.parseDouble(priceField.getText());
+                price = priceField.getText();
+            } catch (NumberFormatException e) {
+                topTextLabel.setText("Prix invalide");
+                return;
+            }
+        }
+
+
+        Item i = new Item(nameField.getText(), qty, price, selectedType);
         Stock.addItem(i);
-        managementController.showTab(typeComboBox.getValue());
+        managementController.showTab(selectedType);
         Stage stage = (Stage) annulerButton.getScene().getWindow();
         stage.close();
+    }
+
+    public void setManagementController(ManagementController mc){
+        this.managementController = mc;
     }
 }

@@ -35,7 +35,7 @@ public class MainController {
     private String currentTab;
 
     public void initialize() throws IOException {
-        currentTab = "None";
+        currentTab = "none";
 
         readStockFile();
 
@@ -212,6 +212,7 @@ public class MainController {
             case "snack" -> currentTabLabel.setText(nbBoissons > nbSnacks ? "Snacks - 0.40 €" : "Snacks - 0.60 €");
             case "boisson" -> currentTabLabel.setText(nbSnacks > nbBoissons ? "Boissons - 0.40 €" : "Boissons - 0.60 €");
             case "autre" -> currentTabLabel.setText("Autres");
+            case "none" -> currentTabLabel.setText("Aucun onglet sélectionné");
             default -> throw new IllegalStateException("Unexpected value: " + currentTab);
         }
     }

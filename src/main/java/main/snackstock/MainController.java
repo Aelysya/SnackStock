@@ -335,10 +335,43 @@ public class MainController {
             Stock.removeQuantityFromItem(i, i.getQuantity());
         }
 
+        updateSalesFile();
         freeMenuField.setText("0");
         freeConsoField.setText("0");
         updateStockFile();
         clearCart();
+    }
+
+    /**
+     * Ajoute dans un fichier la vente récemment effectuée
+     * @throws IOException Fichier de ventes introuvable
+     */
+    public void updateSalesFile() throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/main/snackstock/ventes.txt", true));
+        StringBuilder s = new StringBuilder();
+
+        for(Item i : CartContent.getSnacksList()){
+            s.append(i.getNAME()).append(": ");
+            s.append(i.getQuantity()).append(", ");
+        }
+
+        for(Item i : CartContent.getBoissonsList()){
+            s.append(i.getNAME()).append(": ");
+            s.append(i.getQuantity()).append(", ");
+        }
+
+        for(Item i : CartContent.getAutresList()){
+            s.append(i.getNAME()).append(": ");
+            s.append(i.getQuantity()).append(", ");
+        }
+
+        s.append("consommations gratuites: ").append(freeConsoField.getText()).append(", ");
+        s.append("menus gratuits: ").append(freeMenuField.getText()).append(", ");
+        s.append("prix total: ").append(priceLabel.getText()).append("\n");
+
+        writer.write(s.toString());
+
+        writer.close();
     }
 
     /**

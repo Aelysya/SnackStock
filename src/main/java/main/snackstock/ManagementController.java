@@ -25,6 +25,8 @@ public class ManagementController {
     @FXML
     private GridPane itemsGrid;
 
+    private MainController mainController;
+
     public void initialize() {
         snacksButton.setOnAction(event -> showTab("snack"));
         boissonsButton.setOnAction(event -> showTab("boisson"));
@@ -32,9 +34,19 @@ public class ManagementController {
 
         ajouterButton.setOnAction(event -> launchAddProduct());
         sortirButton.setOnAction(event -> {
+            try {
+                mainController.updateStockFile();
+                mainController.showTab("snack");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             Stage stage = (Stage) boissonsButton.getScene().getWindow();
             stage.close();
         });
+    }
+
+    public void setMainController(MainController mc){
+        this.mainController = mc;
     }
 
     public void launchAddProduct() {

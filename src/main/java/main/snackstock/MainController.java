@@ -38,16 +38,6 @@ public class MainController {
         currentTab = "None";
 
         readStockFile();
-        /*Stock.addItem(new Item("Kit Kat", 2, "0.60"), "snack");
-        Stock.addItem(new Item("Granola", 5, "0.60"), "snack");
-        Stock.addItem(new Item("Skittles", 10, "0.60"), "snack");
-        Stock.addItem(new Item("Nutella B-Ready", 54, "0.60"), "snack");
-        Stock.addItem(new Item("Dragibus", 8, "0.60"), "snack");
-        Stock.addItem(new Item("Mars", 9, "0.60"), "snack");
-        Stock.addItem(new Item("Coca-cola", 2, "0.60"), "boisson");
-        Stock.addItem(new Item("Ice Tea", 2, "0.60"), "boisson");
-        Stock.addItem(new Item("Sprite", 2, "0.60"), "boisson");
-        Stock.addItem(new Item("Bouteille d'eau", 5, "1.20"), "autre");*/
 
         snacksButton.setOnAction(event -> showTab("snack"));
         boissonsButton.setOnAction(event -> showTab("boisson"));
@@ -56,7 +46,11 @@ public class MainController {
         gererButton.setOnAction(event -> launchAuthBeforeManagement());
 
         validerButton.setOnAction(event -> launchConfirmation());
-        annulerButton.setOnAction(event -> clearCart());
+        annulerButton.setOnAction(event -> {
+            freeMenuField.setText("0");
+            freeConsoField.setText("0");
+            clearCart();
+        });
 
         freeMenuField.textProperty().addListener((observableValue, s, t1) -> computePrice());
         freeConsoField.textProperty().addListener((observableValue, s, t1) -> computePrice());
@@ -125,6 +119,8 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ManagementController c = fxmlLoader.getController();
+        c.setMainController(this);
         Stage stage = new Stage();
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -298,15 +294,14 @@ public class MainController {
             nbBoissons--;
         }
 
-        //Les blocs catch sont vides c'est normal, c'est pour avoir un update du prix même quand on laisse un champ vide
         try{
             prix -= Double.parseDouble(freeConsoField.getText()) * 0.6;
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException ignored) {
         }
 
         try{
             prix -= Double.parseDouble(freeMenuField.getText()) * 1;
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException ignored) {
         }
 
         DecimalFormat df = new DecimalFormat("#.#");
@@ -326,6 +321,8 @@ public class MainController {
         for(Item i : CartContent.getAutresList()){
             Stock.removeQuantityFromItem(i, "autre", i.getQuantity());
         }
+        freeMenuField.setText("0");
+        freeConsoField.setText("0");
         updateStockFile();
         clearCart();
     }

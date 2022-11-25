@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -12,15 +13,20 @@ import main.snackstock.controllers.BaseController;
 import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
 public class ManagementController extends BaseController {
     @FXML
-    private Label currentTabLabel;
+    private Label currentTabLabel, totalPriceLabel;
 
     @FXML
-    private Button autresButton, boissonsButton, snacksButton, ajouterButton, sortirButton;
+    private Button autresButton, boissonsButton, snacksButton, ajouterButton, sortirButton, calcButton;
+
+    @FXML
+    private DatePicker fromDate, toDate;
 
     @FXML
     private GridPane itemsGrid;
@@ -29,6 +35,14 @@ public class ManagementController extends BaseController {
         snacksButton.setOnAction(event -> showTab("snack"));
         boissonsButton.setOnAction(event -> showTab("boisson"));
         autresButton.setOnAction(event -> showTab("autre"));
+
+        calcButton.setOnAction(event -> {
+            try {
+                calculateTotalPrice();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         ajouterButton.setOnAction(event -> launchAddProduct());
         sortirButton.setOnAction(event -> {
@@ -61,6 +75,29 @@ public class ManagementController extends BaseController {
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
         stage.show();
+    }
+
+    /**
+     * Calcule le prix des ventes sur une période choisie
+     * @throws IOException Fichier de ventes introuvables
+     */
+    public void calculateTotalPrice() throws IOException {
+        String path = "src/main/resources/main/snackstock/ventes.txt";
+        BufferedReader fileReader = new BufferedReader(new FileReader(path));
+        String row;
+        double finalPrice = 0;
+        int l;
+        String StringPrice;
+        while((row = fileReader.readLine()) != null){
+            String[] data = row.split(", ");
+            l = data.length;
+            StringPrice = data[l-1].substring(12, data[l-1].length()-2);
+            finalPrice += Double.parseDouble(StringPrice);
+        }
+
+        totalPriceLabel.setText(finalPrice + " €");
+
+        fileReader.close();
     }
 
     /**

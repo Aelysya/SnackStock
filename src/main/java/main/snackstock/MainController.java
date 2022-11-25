@@ -15,8 +15,7 @@ import main.snackstock.gestionStock.Item;
 import main.snackstock.gestionStock.Stock;
 
 import java.io.*;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 public class MainController {
@@ -311,10 +310,11 @@ public class MainController {
         } catch (NumberFormatException ignored) {
         }
 
-        DecimalFormat df = new DecimalFormat("#.#");
-        df.setRoundingMode(RoundingMode.HALF_DOWN);
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        nf.setMaximumFractionDigits(1);
 
-        priceLabel.setText(df.format(prix) + " €");
+        priceLabel.setText(nf.format(prix) + " €");
+        priceLabel.setText(priceLabel.getText().replace(",", "."));
         updateTabLabel();
     }
 
@@ -367,6 +367,9 @@ public class MainController {
 
         s.append("consommations gratuites: ").append(freeConsoField.getText()).append(", ");
         s.append("menus gratuits: ").append(freeMenuField.getText()).append(", ");
+
+        String date = String.valueOf(java.time.LocalDate.now());
+        s.append("date: ").append(date).append(", ");
         s.append("prix total: ").append(priceLabel.getText()).append("\n");
 
         writer.write(s.toString());

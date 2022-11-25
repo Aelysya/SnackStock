@@ -13,7 +13,7 @@
     -fx-border-width: 3px 0px 0px 0px;
 }
 
-.tabPart{
+.tabPart, .calcPricePart{
     -fx-border-color: black;
     -fx-border-width: 0px 0px 3px 0px;
 }

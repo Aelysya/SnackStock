@@ -67,8 +67,8 @@ public class AddProductController {
             price = "0.60";
         } else {
             try {
-                Double.parseDouble(priceField.getText());
-                price = priceField.getText();
+                Double.parseDouble(priceField.getText().replace(",", "."));
+                price = priceField.getText().replace(",", ".");
             } catch (NumberFormatException e) {
                 topTextLabel.setText("Prix invalide");
                 return;

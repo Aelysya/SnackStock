@@ -1,0 +1,5 @@
+Ice Tea: 2, Coca-cola: 3, consommations gratuites: 2, menus gratuits: 0, date: 2022-11-24, prix total: 1.8 €
+Skittles: 2, Sprite: 1, consommations gratuites: 0, menus gratuits: 1, date: 2022-11-24, prix total: 0.6 €
+Ice Tea: 1, consommations gratuites: 0, menus gratuits: 0, date: 2022-11-25, prix total: 0.60 €
+Sprite: 1, consommations gratuites: 0, menus gratuits: 0, date: 2022-11-26, prix total: 0.6 €
+Ice Tea: 2, consommations gratuites: 0, menus gratuits: 0, date: 2022-11-26, prix total: 1.2 €

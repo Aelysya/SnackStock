@@ -16,6 +16,8 @@ import main.snackstock.gestionStock.Stock;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ManagementController extends BaseController {
@@ -87,15 +89,36 @@ public class ManagementController extends BaseController {
         String row;
         double finalPrice = 0;
         int l;
+        LocalDate fromLimit, toLimit;
+
+        try{
+            fromLimit = fromDate.getValue().minusDays(1);
+        } catch (Exception e){
+            fromLimit = LocalDate.EPOCH;
+        }
+
+        try{
+            toLimit = toDate.getValue().plusDays(1);
+        } catch (Exception e){
+            toLimit = LocalDate.now().plusDays(1);
+        }
         String StringPrice;
+        LocalDate rowDate;
         while((row = fileReader.readLine()) != null){
             String[] data = row.split(", ");
             l = data.length;
-            StringPrice = data[l-1].substring(12, data[l-1].length()-2);
-            finalPrice += Double.parseDouble(StringPrice);
+            rowDate = LocalDate.parse(data[l-2].substring(6));
+            if((rowDate.isAfter(fromLimit) && rowDate.isBefore(toLimit))){
+                StringPrice = data[l-1].substring(12, data[l-1].length()-2);
+                finalPrice += Double.parseDouble(StringPrice);
+            }
         }
 
-        totalPriceLabel.setText(finalPrice + " €");
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        nf.setMaximumFractionDigits(1);
+
+        totalPriceLabel.setText(nf.format(finalPrice) + " €");
+        totalPriceLabel.setText(totalPriceLabel.getText().replace(",", "."));
 
         fileReader.close();
     }
